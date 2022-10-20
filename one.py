@@ -14,7 +14,7 @@ def one(state):
     #hashed_passwords = stauth.hasher(passwords).generate()
     authenticator = stauth.Authenticate(names,usernames,passwords,
         'some_cookie_name','some_signature_key',cookie_expiry_days=30)
-    name, authentication_status = authenticator.login('Login','main')
+    name, authentication_status, username = authenticator.login('Login','main')
 
 
 
