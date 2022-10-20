@@ -12,7 +12,7 @@ def one(state):
     usernames = ['groupA','groupB']
     passwords = ['groupA','groupB']
     #hashed_passwords = stauth.hasher(passwords).generate()
-    authenticator = stauth.authenticate(names,usernames,passwords,
+    authenticator = stauth.Authenticate(names,usernames,passwords,
         'some_cookie_name','some_signature_key',cookie_expiry_days=30)
     name, authentication_status = authenticator.login('Login','main')
 
