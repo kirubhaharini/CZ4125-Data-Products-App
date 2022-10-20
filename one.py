@@ -24,7 +24,7 @@ def one(state):
     name, authentication_status, username = authenticator.login('Login', 'main')
 
     if authentication_status:
-        authenticator.logout('Logout', 'main')
+        #authenticator.logout('Logout', 'main')
         st.write(f'Welcome *{name}*')
         st.title('Some content')
     elif authentication_status == False:
@@ -32,20 +32,20 @@ def one(state):
     elif authentication_status == None:
         st.warning('Please enter your username and password')
 
-    if st.session_state["authentication_status"]:
-        authenticator.logout('Logout', 'main')
-        st.write(f'Welcome *{st.session_state["name"]}*')
-        st.title('Some content')
-        if st.session_state['name'] == 'userA':
-            st.title('user A logging in')
-            # NDA.NDA()
-        elif st.session_state['name'] == 'userB':
-            st.title('user B logging in')
-            # BSA.BSA()
-    elif st.session_state["authentication_status"] == False:
-        st.error('Username/password is incorrect')
-    elif st.session_state["authentication_status"] == None:
-        st.warning('Please enter your username and password')
+    # if st.session_state["authentication_status"]:
+    #     authenticator.logout('Logout', 'main')
+    #     st.write(f'Welcome *{st.session_state["name"]}*')
+    #     st.title('Some content')
+    #     if st.session_state['name'] == 'userA':
+    #         st.title('user A logging in')
+    #         # NDA.NDA()
+    #     elif st.session_state['name'] == 'userB':
+    #         st.title('user B logging in')
+    #         # BSA.BSA()
+    # elif st.session_state["authentication_status"] == False:
+    #     st.error('Username/password is incorrect')
+    # elif st.session_state["authentication_status"] == None:
+    #     st.warning('Please enter your username and password')
 
 
 '''
