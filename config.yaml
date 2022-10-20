@@ -3,11 +3,11 @@ credentials:
     userA:
       email: userA@gmail.com
       name: userA
-      password: userA # To be replaced with hashed password
+      password: 'userA' # To be replaced with hashed password
     userB:
       email: userB@gmail.com
       name: userB
-      password: userB # To be replaced with hashed password
+      password: 'userB' # To be replaced with hashed password
 cookie:
   expiry_days: 30
   key: some_signature_key
