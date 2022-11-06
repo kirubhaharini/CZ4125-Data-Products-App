@@ -6,8 +6,9 @@ Created on Tue Oct 18 23:18:31 2022
 """
 
 import streamlit as st
-import personalised,general,indiv_book
 st.set_page_config(layout="wide",initial_sidebar_state="collapsed")
+
+import personalised,general,indiv_book
 
 import sessionstate
 import streamlit as st

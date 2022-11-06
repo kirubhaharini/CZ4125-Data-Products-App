@@ -3,17 +3,51 @@ import pandas as pd
 from streamlit.report_thread import get_report_ctx
 from streamlit.server.server import Server
 import sessionstate
+from pymongo import MongoClient
+import certifi
 
 '''
 page 2 
 '''
+@st.cache(suppress_st_warning=True)
+def load_data(filename):
+    df = pd.read_csv(filename)
+    return df
+
+#combine df with mongodb data
+@st.cache(suppress_st_warning=True)
+def final_data(df,isbn):
+    ca = certifi.where()
+    client = MongoClient(
+        "mongodb+srv://tartiniglia:W.I.T.C.H.@atlascluster.tv8xjir.mongodb.net/?retryWrites=true&w=majority",
+        serverSelectionTimeoutMS=5000, tlsCAFile=ca)
+    db = client["bookEater"]
+    book_collection = db["Books"] 
+    try:
+        book_data = book_collection.find({"ISBN": isbn})[0]
+        temp = pd.DataFrame()
+        temp.loc[0,'ISBN'] = book_data['ISBN']
+        temp.loc[0,'URL'] = book_data['URL']
+        temp.loc[0,'Review'] = str(book_data['Review'])
+        temp.loc[0,'Genre'] = str(book_data['Genre'])
+        temp.loc[0,'Summary'] = str(book_data['Summary'])
+    #get data from mongodb --> convert to df --> then merge with books.csv based on ISBN: 
+        book_df = df[df['ISBN']==isbn]
+        final_book_data = temp.merge(book_df,on='ISBN',how='outer')
+    except:
+        final_book_data = book_df
+    return final_book_data
 
 def indiv_book(state):
     state = _get_state()
     book = state.book
-    
-   #Back button, title, bookmark checkbox?
-    back, title, bookmark = st.columns([1, 3,1])
+
+    #get data
+    df = load_data('Books.csv')
+    final_df = final_data(df,book)
+
+   #Back button, title & image
+    back, title, temp = st.columns([1,3,1])
     with back:
     #back button
         if st.button("back"):
@@ -22,11 +56,23 @@ def indiv_book(state):
     if not state.book: return #go back to app.py
 
     with title:
-        st.title(book)
+        st.title(final_df['Book-Title'][0])
+        st.image(final_df['Image-URL-L'][0])
+    with temp:
+        pass
     
     ###################### book info here: ######################
-    # get book details from books db - find using book name/ISBN also can
-    # display info 
+    # display other info here 
+    # using final_df - only contains 1 row (for the particular book)
+    '''
+    Useful columns in final df:
+    ISBN, Review, Genre, Summary, Book-Title, Book-Author, 
+    Year-Of-Publication, Publisher, Image-URL-Lurl
+    '''
+
+
+
+    #############################################################
 
 
 

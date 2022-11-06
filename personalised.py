@@ -7,7 +7,7 @@ personalised UI
 '''
 import streamlit as st
 import pandas as pd
-import pipeline
+# import pipeline
 import pymongo
 from pymongo import MongoClient
 import certifi
@@ -25,6 +25,7 @@ def load_data(filename):
     df = pd.read_csv(filename)
     return df
 
+
 ca = certifi.where()
 client = MongoClient(
     "mongodb+srv://tartiniglia:W.I.T.C.H.@atlascluster.tv8xjir.mongodb.net/?retryWrites=true&w=majority",
@@ -37,18 +38,28 @@ client2 = MongoClient(
     "mongodb+srv://tanchingfhen:978775!Mj@dataproducts.hcjk1ct.mongodb.net/?retryWrites=true&w=majority",
     tlsCAFile=ca)
 user_collection = client2["DP"]["users"]
-df = load_data('data/Books.csv')
 
+df = load_data('Books.csv')
 
-def buttonClick(isbn):
-    inter = user_collection.find({"User-ID": '276725'})[0]['interactions']
+def buttonClick(state,isbn,user_id):
+    inter = user_collection.find({"User-ID": user_id})[0]['interactions']
     inter.append(isbn)
     inter = list(set(inter))
+    user_collection.update_one({
+    'User-ID': user_id
+    },{"$set": {"interactions": inter}}
+    , upsert=False)
+
+    #to change page
+    state.book = isbn
+
+
 
 def show(state):
     username = state.user
     st.write('personalised main page')
-    st.write(username)
+    st.write('Logged in as: '+username)
+    user_id = username
 
     for col in df.columns:
         df[col] = df[col].astype(str)
@@ -65,48 +76,15 @@ def show(state):
 
     st.sidebar.write(keyword)
 
-    # =============================================================================
-    # with st.sidebar:
-    #     with st.echo():
-    #         st.write("This code will be printed to the sidebar.")
-    #
-    #     option = st.multiselect(
-    #     'Genre',
-    #     full_genre_collection.find_one()['genre'])
-    # =============================================================================
-
-    # =============================================================================
-    #     options = st.multiselect(
-    #     'What are your favorite colors',
-    #     ['Green', 'Yellow', 'Red', 'Blue'],
-    #     ['Yellow', 'Red'])
-    #
-    #     st.write('You selected:', options)
-    # =============================================================================
-
-    # =============================================================================
-    #     with st.spinner("Loading..."):
-    #         time.sleep(5)
-    #     st.success("Done!")
-    # =============================================================================
-
+    
     with header:
         app_name, none, login = st.columns(3)
         # taking book name as input
         with app_name:
             st.header('Book Rec App')
-        # taking multiple fiels to get similarity
-        with login:
-            st.button('Login')
-        # =============================================================================
-        #         feat = st.selectbox("Select Mode : ",['Book_title', 'Rating', 'Price'])
-        #         if st.button('Search'):
-        #             tk = 1
-        # =============================================================================
-
+        # taking multiple fields to get similarity
         search = st.text_input('Search for your books here')
 
-    user_id = username
 
     with pop_reads:
         st.header('Popular Reads')
@@ -114,7 +92,6 @@ def show(state):
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            # st.write('Where You\'ll Find Me: And Other...')
             for i in range(0, 13, 3):
                 if len(df['Book-Title'][i]) > 25:
                     title = df['Book-Title'][i][:25] + '...'
@@ -125,53 +102,34 @@ def show(state):
                 st.image(new_image)
                 title_button = st.button(title, key=df['ISBN'][i])
                 if title_button:
-                    buttonClick(df['ISBN'][i])
-
+                    buttonClick(state,df['ISBN'][i],user_id)
                 st.write('\n\n')
 
         with col2:
             for i in range(1, 13, 3):
                 if len(df['Book-Title'][i]) > 25:
-                    st.write(df['Book-Title'][i][:25] + '...')
+                    title = df['Book-Title'][i][:25] + '...'
                 else:
-                    st.write(df['Book-Title'][i])
+                    title = df['Book-Title'][i]
                 im = Image.open(requests.get(df['Image-URL-L'][i], stream=True).raw)
                 new_image = im.resize((180, 200))
                 st.image(new_image)
+                title_button = st.button(title, key=df['ISBN'][i])
+                if title_button:
+                    buttonClick(state,df['ISBN'][i],user_id)
                 st.write('\n\n')
 
         with col3:
             for i in range(2, 13, 3):
                 if len(df['Book-Title'][i]) > 25:
-                    st.write(df['Book-Title'][i][:25] + '...')
+                    title = df['Book-Title'][i][:25] + '...'
                 else:
-                    st.write(df['Book-Title'][i])
+                    title = df['Book-Title'][i]
                 im = Image.open(requests.get(df['Image-URL-L'][i], stream=True).raw)
                 new_image = im.resize((180, 200))
                 st.image(new_image)
+                title_button = st.button(title, key=df['ISBN'][i])
+                if title_button:
+                    buttonClick(state,df['ISBN'][i],user_id)
                 st.write('\n\n')
 
-
-
-    
-
-    '''
-        #Note: for each button: have a unique key. 
-        # if button (for each book) is clicked, set the following:
-            bookname = book1
-            state.book = bookname
-        See below for examples:
-    '''
-    book1 = 'Book 1'
-    personalise = 'personalised'
-    book_btn1 = st.button(book1,key=personalise+'book1')
-    bookname = None #instead of state.book
-    if book_btn1:
-        bookname = book1
-        state.book = bookname
-
-    book2 = 'Book 2'
-    book_btn2 = st.button(book2,key=personalise+'book2')
-    if book_btn2:
-        bookname = book2
-        state.book = bookname
