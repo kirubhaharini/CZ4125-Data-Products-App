@@ -6,7 +6,7 @@ Created on Tue Oct 18 23:18:31 2022
 """
 
 import streamlit as st
-import indiv_book
+import indiv_book,personalised,general
 st.set_page_config(layout="wide",initial_sidebar_state="collapsed")
 
 import sessionstate
@@ -24,33 +24,20 @@ def main():
     if state.book is None: #initialise
         state.book = 'empty'
 
-    # pages = {
-    #     "Login Page": login.login,
-    #     "Indiv Book Page": indiv_book.indiv_book,
-    # }
-
     a,b,c = st.columns([1,3,2])
     if (state.user) and (state.user != 'guest'): #logged in already
-        st.write('personalised main page')
-        st.write(state.user)
-        #######################################################
-        ##          WRITE CODE FOR PERSONALISED UI HERE      ##
-
-
-        #######################################################
+        personalised.show(state)
         with c: 
             logout_button = st.button('Logout')
             if logout_button:
                 state.user = 'guest'
     
     if state.user == 'guest':
-        st.write('general main page')
-        st.write(state.user)
-        #######################################################
-        ##          WRITE CODE FOR GENERAL UI HERE      ##
-
-
-        #######################################################
+        general.show(state)
+        with c:
+            login_button = st.button('Login')
+            if login_button:
+                state.user = False
 
         #trying button - click bring to next page
         book1 = 'Book 1'
@@ -62,24 +49,17 @@ def main():
         book_btn2 = st.button(book2,key='book2')
         if book_btn2:
             state.book = book2
+        
+        # if (not book_btn1 )and (not book_btn2): 
+        #     state.book = 'empty'
 
         if state.book != 'empty':
             indiv_book.indiv_book(state)
 
-        with c:
-            login_button = st.button('Login')
-            if login_button:
-                state.user = False
 
 
     if not state.user: #not logged in  -- NOTE: Leave this alone ! - dont edit
         loginSignup(state)
-        #     pass
-            # Display the selected page with the session state
-            # options = tuple(pages.keys())
-            # state.page = st.sidebar.radio("Select your page", options, options.index(state.page) if state.page else 0)
-            # state.page = 'Login Page'
-            # pages['Login Page'](state)
     
     # Mandatory to avoid rollbacks with widgets, must be called at the end of your app
     state.sync()
