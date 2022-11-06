@@ -39,23 +39,6 @@ def main():
             if login_button:
                 state.user = False
 
-        #trying button - click bring to next page
-        book1 = 'Book 1'
-        book_btn1 = st.button(book1,key='book1')
-        if book_btn1:
-            state.book = book1
-
-        book2 = 'Book 2'
-        book_btn2 = st.button(book2,key='book2')
-        if book_btn2:
-            state.book = book2
-        
-        # if (not book_btn1 )and (not book_btn2): 
-        #     state.book = 'empty'
-
-        if state.book != 'empty':
-            indiv_book.indiv_book(state)
-
 
 
     if not state.user: #not logged in  -- NOTE: Leave this alone ! - dont edit
