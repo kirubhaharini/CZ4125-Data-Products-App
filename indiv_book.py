@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
-import sessionstate
 from streamlit.report_thread import get_report_ctx
 from streamlit.server.server import Server
+import sessionstate
 
 '''
 page 2 
@@ -10,9 +10,23 @@ page 2
 
 def indiv_book(state):
     state = _get_state()
-    st.write('indiv book page')
-    st.write(state.book)
+    book = state.book
     
+   #Back button, title, bookmark checkbox?
+    back, title, bookmark = st.columns([1, 3,1])
+    with back:
+    #back button
+        if st.button("back"):
+            state.book=False
+            return
+    if not state.book: return #go back to app.py
+
+    with title:
+        st.title(book)
+    
+    ###################### book info here: ######################
+    # get book details from books db - find using book name/ISBN also can
+    # display info 
 
 
 

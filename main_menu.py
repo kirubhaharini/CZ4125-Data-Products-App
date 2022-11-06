@@ -6,7 +6,7 @@ Created on Tue Oct 18 23:18:31 2022
 """
 
 import streamlit as st
-import indiv_book,personalised,general
+import personalised,general,indiv_book
 st.set_page_config(layout="wide",initial_sidebar_state="collapsed")
 
 import sessionstate
@@ -21,45 +21,34 @@ def main():
     state = _get_state() #using sessionstate.py, this allows the app to store and save state variables across pages
     if state.user is None: #initialise
         state.user = False
-    if state.book is None: #initialise
-        state.book = 'empty'
-
-    a,b,c = st.columns([1,3,2])
-    if (state.user) and (state.user != 'guest'): #logged in already
-        personalised.show(state)
-        with c: 
-            logout_button = st.button('Logout')
-            if logout_button:
-                state.user = 'guest'
-    
-    if state.user == 'guest':
-        general.show(state)
-        with c:
-            login_button = st.button('Login')
-            if login_button:
-                state.user = False
-
-        #trying button - click bring to next page
-        book1 = 'Book 1'
-        book_btn1 = st.button(book1,key='book1')
-        if book_btn1:
-            state.book = book1
-
-        book2 = 'Book 2'
-        book_btn2 = st.button(book2,key='book2')
-        if book_btn2:
-            state.book = book2
-        
-        # if (not book_btn1 )and (not book_btn2): 
-        #     state.book = 'empty'
-
-        if state.book != 'empty':
-            indiv_book.indiv_book(state)
-
-
+    # if state.book is None: #initialise
+    #     state.book = None
 
     if not state.user: #not logged in  -- NOTE: Leave this alone ! - dont edit
         loginSignup(state)
+
+    else:
+
+        if state.book:
+            indiv_book.indiv_book(state)
+        else:
+            a,b,c = st.columns([1,3,2])
+            if (state.user) and (state.user != 'guest'): #logged in already
+                personalised.show(state)
+                with c: 
+                    logout_button = st.button('Logout')
+                    if logout_button:
+                        state.user = 'guest'
+            
+            if state.user == 'guest':
+                general.show(state)
+                with c:
+                    login_button = st.button('Login')
+                    if login_button:
+                        state.user = False
+        
+    
+        
     
     # Mandatory to avoid rollbacks with widgets, must be called at the end of your app
     state.sync()
