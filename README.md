@@ -12,6 +12,7 @@ indiv_book.py = indiv book page once user clicks on a book
 
 
 Sample login credentials:
+
   (a) New user (no interactions) :
   
       Username = test
