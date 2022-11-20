@@ -11,7 +11,7 @@ import pandas as pd
 import pymongo
 from pymongo import MongoClient
 import certifi
-from PIL import Image
+# from PIL import Image
 import requests
 import time
 from streamlit_tags import st_tags, st_tags_sidebar
@@ -97,11 +97,12 @@ def show(state):
                     title = df['Book-Title'][i][:25] + '...'
                 else:
                     title = df['Book-Title'][i]
-                im = Image.open(df['Image-URL-L'][i])
-
-                im = Image.open(requests.get(df['Image-URL-L'][i], stream=True).raw)
-                new_image = im.resize((180, 200))
-                st.image(new_image)
+                url = df['Image-URL-L'][i]
+                st.image(url,width=160)
+                
+                # im = Image.open(requests.get(df['Image-URL-L'][i], stream=True).raw)
+                # new_image = im.resize((180, 200))
+                # st.image(new_image)
                 title_button = st.button(title, key=df['ISBN'][i])
                 if title_button:
                     buttonClick(state,df['ISBN'][i],user_id)
@@ -113,9 +114,8 @@ def show(state):
                     title = df['Book-Title'][i][:25] + '...'
                 else:
                     title = df['Book-Title'][i]
-                im = Image.open(requests.get(df['Image-URL-L'][i], stream=True).raw)
-                new_image = im.resize((180, 200))
-                st.image(new_image)
+                url = df['Image-URL-L'][i]
+                st.image(url,width=140)
                 title_button = st.button(title, key=df['ISBN'][i])
                 if title_button:
                     buttonClick(state,df['ISBN'][i],user_id)
@@ -127,9 +127,8 @@ def show(state):
                     title = df['Book-Title'][i][:25] + '...'
                 else:
                     title = df['Book-Title'][i]
-                im = Image.open(requests.get(df['Image-URL-L'][i], stream=True).raw)
-                new_image = im.resize((180, 200))
-                st.image(new_image)
+                url = df['Image-URL-L'][i]
+                st.image(url,width=160)
                 title_button = st.button(title, key=df['ISBN'][i])
                 if title_button:
                     buttonClick(state,df['ISBN'][i],user_id)
