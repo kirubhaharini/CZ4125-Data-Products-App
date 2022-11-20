@@ -97,6 +97,8 @@ def show(state):
                     title = df['Book-Title'][i][:25] + '...'
                 else:
                     title = df['Book-Title'][i]
+                im = Image.open(df['Image-URL-L'][i])
+
                 im = Image.open(requests.get(df['Image-URL-L'][i], stream=True).raw)
                 new_image = im.resize((180, 200))
                 st.image(new_image)
