@@ -125,9 +125,9 @@ def indiv_book(state):
         html_str = f""" <h2 style='text-align: center; color: maroon;'>Genre(s)</h2> """
         st.markdown(html_str, unsafe_allow_html=True)
         try:
-            g = literal_eval(final_df['Genre'][0])
+            g = list(set(literal_eval(final_df['Genre'][0])))
             # g = [item for sublist in g for item in sublist]
-            st.write(g)
+            st.write(', '.join(g))
         except:
             st.write('NA')
     reviews, general_sentiment = st.columns(2)

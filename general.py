@@ -129,13 +129,6 @@ def show(state):
     search_results = st.container()
     pop_reads = st.container()
 
-    genres = st_tags_sidebar(
-        label='Filter by Genre:',
-        suggestions=full_genre_collection.find_one()['genre'],
-        maxtags=4,
-        key='2')
-
-
     with search_bar:
         query = st.text_input('Search for your books here')
     
@@ -144,13 +137,7 @@ def show(state):
     filter = False
     desired_genres = []
     new_df = pd.DataFrame()
-
-    if genres:
-        filter = True
-        genre_df = filter_by_genre(genres)
-        desired_genres = genres
-        new_df = pd.concat([genre_df,new_df]).drop_duplicates(subset='ISBN')
-
+    
     if query:
         filter = True
         output = get_query_results(query)
@@ -160,7 +147,25 @@ def show(state):
         desired_genres += output_genres
         query_df = convert_docs_to_df(results)
         new_df = pd.concat([query_df,new_df]).drop_duplicates(subset='ISBN')
-    
+        genres = st_tags_sidebar(
+        label='Filter by Genre:', value = output_genres,
+        suggestions=full_genre_collection.find_one()['genre'],
+        maxtags=4,
+        key='genre_text1')
+    else:
+        genres = st_tags_sidebar(
+        label='Filter by Genre:',
+        suggestions=full_genre_collection.find_one()['genre'],
+        maxtags=4,
+        key='genre_text2')
+
+    if genres:
+        filter = True
+        genre_df = filter_by_genre(genres)
+        desired_genres = genres
+        new_df = pd.concat([genre_df,new_df]).drop_duplicates(subset='ISBN')
+
+
     if len(desired_genres)>0:
         desired_genres = list(set(desired_genres))
         
