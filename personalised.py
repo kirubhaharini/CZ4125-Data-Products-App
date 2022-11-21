@@ -27,7 +27,7 @@ from sentence_transformers import SentenceTransformer
 from sentence_transformers.cross_encoder import CrossEncoder
 from rake_nltk import Rake
 
-@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True,show_spinner=False)
 def load_data(filename):
     df = pd.read_csv(filename)
     return df
@@ -80,7 +80,7 @@ def buttonClick(state,isbn,user_id):
     #to change page
     state.book = isbn
 
-@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True,show_spinner=False)
 def filter_by_genre(genres):
     isbn_list = []
     for book in book_collection.find():
@@ -106,7 +106,7 @@ def get_query_results(query):
             )
     return [results, desired_genres]
 
-@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True,show_spinner=False)
 def convert_docs_to_df(docs):
     return_df = pd.DataFrame()
     for doc in docs:

@@ -15,12 +15,12 @@ import numpy as np
 '''
 page 2 
 '''
-@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True,show_spinner=False)
 def load_data(filename):
     df = pd.read_csv(filename)
     return df
 
-@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True,show_spinner=False)
 def plotly_chart(sentiment):
     fig2 = go.Figure(go.Indicator(
         mode = "delta",
@@ -42,7 +42,7 @@ def plotly_chart(sentiment):
     return fig2
 
 #combine df with mongodb data
-@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True,show_spinner=False)
 def final_data(df,isbn):
     ca = certifi.where()
     client = MongoClient(
@@ -65,7 +65,7 @@ def final_data(df,isbn):
         final_book_data = book_df
     return final_book_data
 
-@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True,show_spinner=False)
 def get_sentiments(reviews_list):
     sid_obj = SentimentIntensityAnalyzer()
     sentiments = []

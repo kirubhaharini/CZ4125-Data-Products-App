@@ -24,7 +24,7 @@ from sentence_transformers import SentenceTransformer
 from sentence_transformers.cross_encoder import CrossEncoder
 from rake_nltk import Rake
 
-@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True,show_spinner=False)
 def load_data(filename):
     df = pd.read_csv(filename)
     return df
@@ -51,7 +51,7 @@ keyword_model = Rake()
 df = load_data('Books.csv')
 
 #########################
-@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True,show_spinner=False)
 def filter_by_genre(genres):
     isbn_list = []
     for book in book_collection.find():
@@ -64,7 +64,7 @@ def filter_by_genre(genres):
     filtered_df = df[df['ISBN'].isin(isbn_list)].reset_index(drop=True)
     return filtered_df
 
-@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True,show_spinner=False)
 def get_popular_reads():
     pop_ls = []
     for user in user_collection.find():
@@ -79,7 +79,7 @@ def get_popular_reads():
     filtered_df = df[df['ISBN'].isin(isbn_list)].reset_index(drop=True)
     return filtered_df
 
-@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True,show_spinner=False)
 def convert_docs_to_df(docs):
     return_df = pd.DataFrame()
     for doc in docs:
