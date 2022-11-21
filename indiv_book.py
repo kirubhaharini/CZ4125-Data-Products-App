@@ -50,7 +50,7 @@ def final_data(df,isbn):
         serverSelectionTimeoutMS=5000, tlsCAFile=ca)
     db = client["bookEater"]
     book_collection = db["Books"] 
-    book_df = df[df['ISBN']==isbn]
+    book_df = df[df['ISBN']==isbn].reset_index(drop=True)
     try:
         book_data = book_collection.find({"ISBN": isbn})[0]
         temp = pd.DataFrame()
@@ -60,7 +60,7 @@ def final_data(df,isbn):
         temp.loc[0,'Genre'] = str(book_data['Genre'])
         temp.loc[0,'Summary'] = str(book_data['Summary'])
     #get data from mongodb --> convert to df --> then merge with books.csv based on ISBN: 
-        final_book_data = temp.merge(book_df,on='ISBN',how='outer')
+        final_book_data = temp.merge(book_df,on='ISBN',how='outer').reset_index(drop=True)
     except:
         final_book_data = book_df
     return final_book_data
@@ -117,31 +117,41 @@ def indiv_book(state):
     with summary:
         html_str = f""" <h2 style='text-align: center; color: maroon;'>Summary</h2> """
         st.markdown(html_str, unsafe_allow_html=True)
-        st.write('\n'.join(literal_eval(final_df['Summary'][0])))
+        try:
+            st.write('\n'.join(literal_eval(final_df['Summary'][0])))
+        except:
+            st.write('NA')
     with genres:
         html_str = f""" <h2 style='text-align: center; color: maroon;'>Genre(s)</h2> """
         st.markdown(html_str, unsafe_allow_html=True)
-        g = literal_eval(final_df['Genre'][0])
-        # g = [item for sublist in g for item in sublist]
-        st.write(g)
+        try:
+            g = literal_eval(final_df['Genre'][0])
+            # g = [item for sublist in g for item in sublist]
+            st.write(g)
+        except:
+            st.write('NA')
     reviews, general_sentiment = st.columns(2)
     with reviews:
         html_str = f""" <h2 style='text-align: center; color: maroon;'>Top Reviews</h2> """
         st.markdown(html_str, unsafe_allow_html=True)
-        reviews_list = literal_eval(final_df['Review'][0])
-        reviews_list = [x for x in reviews_list if x != '']
-        count = 1
-        with st.expander('See Reviews'):
-            for review in reviews_list:
-                st.write(count)
-                st.write(review)
-                count+=1
-    with general_sentiment:
-        html_str = f""" <h2 style='text-align: center; color: maroon;'>Overall Review Sentiment</h2> """
-        st.markdown(html_str, unsafe_allow_html=True)
-        sentiment = get_sentiments(reviews_list)
-        figure = plotly_chart(sentiment)
-        st.plotly_chart(figure)
+        try:
+            reviews_list = literal_eval(final_df['Review'][0])
+            reviews_list = [x for x in reviews_list if x != '']
+            count = 1
+            with st.expander('See Reviews'):
+                for review in reviews_list:
+                    st.write(count)
+                    st.write(review)
+                    count+=1
+                
+            with general_sentiment:
+                html_str = f""" <h2 style='text-align: center; color: maroon;'>Overall Review Sentiment</h2> """
+                st.markdown(html_str, unsafe_allow_html=True)
+                sentiment = get_sentiments(reviews_list)
+                figure = plotly_chart(sentiment)
+                st.plotly_chart(figure)
+        except:
+            st.write('NA')
 
 def _get_session():
     session_id = get_report_ctx().session_id
