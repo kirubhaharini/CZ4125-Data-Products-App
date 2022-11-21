@@ -20,6 +20,7 @@ import implicit
 from streamlit_tags import st_tags, st_tags_sidebar
 import nltk
 nltk.download('stopwords')
+nltk.download('punkt')
 showWarningOnDirectExecution = False
 import json, requests, urllib, io
 from sentence_transformers import SentenceTransformer
