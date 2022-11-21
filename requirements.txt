@@ -1,3 +1,7 @@
 streamlit==0.86.0
 pymongo
 streamlit_tags
+rake_nltk
+sentence_transformers
+implicit
+vaderSentiment
