@@ -50,6 +50,7 @@ def final_data(df,isbn):
         serverSelectionTimeoutMS=5000, tlsCAFile=ca)
     db = client["bookEater"]
     book_collection = db["Books"] 
+    book_df = df[df['ISBN']==isbn]
     try:
         book_data = book_collection.find({"ISBN": isbn})[0]
         temp = pd.DataFrame()
@@ -59,7 +60,6 @@ def final_data(df,isbn):
         temp.loc[0,'Genre'] = str(book_data['Genre'])
         temp.loc[0,'Summary'] = str(book_data['Summary'])
     #get data from mongodb --> convert to df --> then merge with books.csv based on ISBN: 
-        book_df = df[df['ISBN']==isbn]
         final_book_data = temp.merge(book_df,on='ISBN',how='outer')
     except:
         final_book_data = book_df
