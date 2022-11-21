@@ -5,3 +5,4 @@ rake_nltk
 sentence_transformers
 implicit
 vaderSentiment
+plotly
