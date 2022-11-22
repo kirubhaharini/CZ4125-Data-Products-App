@@ -17,6 +17,7 @@ from PIL import Image
 import requests
 import time
 import implicit
+from collections import Counter
 from streamlit_tags import st_tags, st_tags_sidebar
 import nltk
 nltk.download('stopwords')
@@ -107,6 +108,21 @@ def get_query_results(query):
     return [results, desired_genres]
 
 @st.cache(suppress_st_warning=True,show_spinner=False)
+def get_popular_reads():
+    pop_ls = []
+    for user in user_collection.find():
+        pop_ls.append(user['interactions'])
+        
+    flat_list = [item for sublist in pop_ls for item in sublist]
+    isbn_list = []
+    for item in Counter(flat_list).most_common(15):
+        isbn = item[0]
+        isbn_list.append(isbn)
+    
+    filtered_df = df[df['ISBN'].isin(isbn_list)].reset_index(drop=True)
+    return filtered_df
+
+@st.cache(suppress_st_warning=True,show_spinner=False)
 def convert_docs_to_df(docs):
     return_df = pd.DataFrame()
     for doc in docs:
@@ -138,13 +154,6 @@ def show(state):
     search_results = st.container()
     personalised_recommendations = st.container()
 
-    genres = st_tags_sidebar(
-        label='Filter by Genre:',
-        suggestions=full_genre_collection.find_one()['genre'],
-        maxtags=4,
-        key='2')
-
-
 
     with search_bar:
         query = st.text_input('Search for your books here')
@@ -153,13 +162,7 @@ def show(state):
     filter = False
     desired_genres = []
     new_df = pd.DataFrame()
-
-    if genres:
-        filter = True
-        genre_df = filter_by_genre(genres)
-        desired_genres = genres
-        new_df = pd.concat([genre_df,new_df]).drop_duplicates(subset='ISBN')
-
+    
     if query:
         filter = True
         output = get_query_results(query)
@@ -169,7 +172,25 @@ def show(state):
         desired_genres += output_genres
         query_df = convert_docs_to_df(results)
         new_df = pd.concat([query_df,new_df]).drop_duplicates(subset='ISBN')
-    
+        genres = st_tags_sidebar(
+        label='Filter by Genre:', value = output_genres,
+        suggestions=full_genre_collection.find_one()['genre'],
+        maxtags=4,
+        key='genre_text1')
+    else:
+        genres = st_tags_sidebar(
+        label='Filter by Genre:',
+        suggestions=full_genre_collection.find_one()['genre'],
+        maxtags=4,
+        key='genre_text2')
+
+    if genres:
+        filter = True
+        genre_df = filter_by_genre(genres)
+        desired_genres = genres
+        new_df = pd.concat([genre_df,new_df]).drop_duplicates(subset='ISBN')
+
+
     if len(desired_genres)>0:
         desired_genres = list(set(desired_genres))
         
@@ -224,11 +245,12 @@ def show(state):
 
         col1, col2, col3 = st.columns(3)
 
-        if user_id == 'test': #just for testing purpose = no personalised recommendation applied yet
-            new_df = df[:10]
-        else: #apply personalised recommendations to users in mongodb 
+        try: #apply personalised recommendations to users in mongodb 
             docs = personalizedSearch(book_collection, model, int(user_id), 10)
             new_df = convert_docs_to_df(docs)
+        except: #new users
+            new_df = get_popular_reads()[:10]#based on user interactions -- get most pop
+
         with col1: 
             for i in range(int(len(new_df)/3)+1):
                 if len(new_df['Book-Title'][i]) > 25:
