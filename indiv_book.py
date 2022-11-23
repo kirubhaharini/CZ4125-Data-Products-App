@@ -1,3 +1,8 @@
+'''
+books dashboard 
+'''
+
+# IMPORTS
 import streamlit as st
 import pandas as pd
 from streamlit.report_thread import get_report_ctx
@@ -12,9 +17,7 @@ import plotly.graph_objects as go
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import numpy as np
 
-'''
-page 2 
-'''
+# FUNCTIONS
 @st.cache(suppress_st_warning=True,show_spinner=False)
 def load_data(filename):
     df = pd.read_csv(filename)
@@ -75,7 +78,7 @@ def get_sentiments(reviews_list):
     return round(np.mean(sentiments),1)
 
 
-
+# MAIN INTERFACE FOR BOOKS DASHBOARD
 def indiv_book(state):
     state = _get_state()
     book = state.book
@@ -102,7 +105,6 @@ def indiv_book(state):
         st.image(final_df['Image-URL-L'][0],width=250)
     
     st.text('')
-    # temp1, details, temp2 = st.columns([10,6,8])
     with details:
         html_str = f""" <h2 style='color: maroon;'>Book Details</h2> """
         st.markdown(html_str, unsafe_allow_html=True)

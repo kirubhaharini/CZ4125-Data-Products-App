@@ -1,12 +1,11 @@
+'''
+general dashboard for guest users
+'''
+
+# IMPORTS
 import streamlit as st
 import pandas as pd
 import sessionstate, indiv_book
-
-'''
-general UI
-'''
-import streamlit as st
-import pandas as pd
 import pipeline
 from pipeline import *
 import pymongo
@@ -17,19 +16,13 @@ import requests
 import time
 from collections import Counter
 from streamlit_tags import st_tags, st_tags_sidebar
-
 showWarningOnDirectExecution = False
 import json, requests, urllib, io
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.cross_encoder import CrossEncoder
 from rake_nltk import Rake
 
-@st.cache(suppress_st_warning=True,show_spinner=False)
-def load_data(filename):
-    df = pd.read_csv(filename)
-    return df
-
-
+# CONNECTION TO MONGODB COLLECTIONS 
 ca = certifi.where()
 client = MongoClient(
     "mongodb+srv://tartiniglia:W.I.T.C.H.@atlascluster.tv8xjir.mongodb.net/?retryWrites=true&w=majority",
@@ -43,14 +36,19 @@ client2 = MongoClient(
     tlsCAFile=ca)
 user_collection = client2["DP"]["users"]
 
-
+# LOADING SEMANTIC SEARCH MODEL
 genre_embedding_model = SentenceTransformer('whaleloops/phrase-bert')
 ranking_model = CrossEncoder('cross-encoder/stsb-TinyBERT-L-4')
 keyword_model = Rake()
 
+# FUNCTIONS
+@st.cache(suppress_st_warning=True,show_spinner=False)
+def load_data(filename):
+    df = pd.read_csv(filename)
+    return df
+
 df = load_data('Books.csv')
 
-#########################
 @st.cache(suppress_st_warning=True,show_spinner=False)
 def filter_by_genre(genres):
     isbn_list = []
@@ -95,7 +93,6 @@ def convert_docs_to_df(docs):
         return_df = pd.concat([return_df,final_book_data]).reset_index(drop=True)
     return return_df
 
-# @st.cache(suppress_st_warning=True)
 def get_query_results(query):
     results, desired_genres = semanticSearch(
             query = query, 
@@ -108,14 +105,13 @@ def get_query_results(query):
             stage_two_limit = 3, 
             )
     return [results, desired_genres]
-###########################
 
 def buttonClick(state,isbn):  #on button click - this is the final callback fn
     state.book = isbn
 
-
+# MAIN INTERFACE FOR GENERAL USERS
 def show(state):
-    username = state.user #guest - can ignore this
+    username = state.user #guest 
 
     html_str = f""" <h1 style='text-align: center; color: steelblue;'>Book Recommendation App</h1> """
     st.markdown(html_str, unsafe_allow_html=True)
@@ -150,13 +146,11 @@ def show(state):
         genres = st_tags_sidebar(
         label='Filter by Genre:', value = output_genres,
         suggestions=full_genre_collection.find_one()['genre'],
-        maxtags=4,
         key='genre_text1')
     else:
         genres = st_tags_sidebar(
         label='Filter by Genre:',
         suggestions=full_genre_collection.find_one()['genre'],
-        maxtags=4,
         key='genre_text2')
 
     if genres:
@@ -262,5 +256,4 @@ def show(state):
                 st.write('\n\n')
 
         
-    #######################################################
    

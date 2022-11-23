@@ -1,14 +1,13 @@
-import streamlit as st
-import pandas as pd
-import sessionstate
+'''
+personalised dashboard for logged in users
+'''
 
-'''
-personalised UI
-'''
+# IMPORTS
 import streamlit as st
 import pandas as pd
 import pipeline,models
 from pipeline import *
+import sessionstate
 import pickle
 import pymongo
 from pymongo import MongoClient
@@ -28,18 +27,13 @@ from sentence_transformers import SentenceTransformer
 from sentence_transformers.cross_encoder import CrossEncoder
 from rake_nltk import Rake
 
-@st.cache(suppress_st_warning=True,show_spinner=False)
-def load_data(filename):
-    df = pd.read_csv(filename)
-    return df
-
-
+# CONNECTION TO MONGODB COLLECTIONS
 ca = certifi.where()
 client = MongoClient(
     "mongodb+srv://tartiniglia:W.I.T.C.H.@atlascluster.tv8xjir.mongodb.net/?retryWrites=true&w=majority",
     serverSelectionTimeoutMS=5000, tlsCAFile=ca)
 db = client["bookEater"]
-book_collection = db["Books"]  # Tiviatis is making new Book collection
+book_collection = db["Books"] 
 full_genre_collection = db["full_genre"]  # this is used for the semanticSearch pipeline
 ca = certifi.where()
 client2 = MongoClient(
@@ -47,27 +41,33 @@ client2 = MongoClient(
     tlsCAFile=ca)
 user_collection = client2["DP"]["users"]
 
-df = load_data('Books.csv')
+# LOADING SEMANTIC SEARCH MODEL
 genre_embedding_model = SentenceTransformer('whaleloops/phrase-bert')
 ranking_model = CrossEncoder('cross-encoder/stsb-TinyBERT-L-4')
 keyword_model = Rake()
 
 
-#load pickle files
+# LOAD PERSONALISED RECOMMENDATION MODEL
 with open('train_csr.pkl', 'rb') as f:
     train_csr = pickle.load(f)
 with open('user_map.pkl', 'rb') as f:
     user_map = pickle.load(f)
 with open('item_map.pkl', 'rb') as f:
     item_map = pickle.load(f)
-
-
 model = models.ALSRecommender(model_name = "AlternatingLeastSquares", 
                  config_dict = {}, 
                  train_csr = train_csr, 
                  user_map = user_map, 
                  item_map = item_map)
 model.load('./')
+
+
+# FUNCTIONS
+@st.cache(suppress_st_warning=True,show_spinner=False)
+def load_data(filename):
+    df = pd.read_csv(filename)
+    return df
+df = load_data('Books.csv')
 
 def buttonClick(state,isbn,user_id):
     inter = user_collection.find({"User-ID": user_id})[0]['interactions']
@@ -138,6 +138,7 @@ def convert_docs_to_df(docs):
         return_df = pd.concat([return_df,final_book_data]).reset_index(drop=True)
     return return_df
 
+# MAIN INTERFACE FOR LOGGED IN USERS
 def show(state):
     username = state.user
 
@@ -175,13 +176,11 @@ def show(state):
         genres = st_tags_sidebar(
         label='Filter by Genre:', value = output_genres,
         suggestions=full_genre_collection.find_one()['genre'],
-        maxtags=4,
         key='genre_text1')
     else:
         genres = st_tags_sidebar(
         label='Filter by Genre:',
         suggestions=full_genre_collection.find_one()['genre'],
-        maxtags=4,
         key='genre_text2')
 
     if genres:
@@ -249,7 +248,7 @@ def show(state):
             docs = personalizedSearch(book_collection, model, int(user_id), 10)
             new_df = convert_docs_to_df(docs)
         except: #new users
-            new_df = get_popular_reads()[:10]#based on user interactions -- get most pop
+            new_df = get_popular_reads()[:10] #based on user interactions -- get most pop
 
         with col1: 
             for i in range(int(len(new_df)/3)+1):

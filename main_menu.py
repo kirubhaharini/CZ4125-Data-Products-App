@@ -22,10 +22,8 @@ def main():
     state = _get_state() #using sessionstate.py, this allows the app to store and save state variables across pages
     if state.user is None: #initialise
         state.user = False
-    # if state.book is None: #initialise
-    #     state.book = None
 
-    if not state.user: #not logged in  -- NOTE: Leave this alone ! - dont edit
+    if not state.user: #not logged in  
         loginSignup(state)
 
     else:
@@ -47,9 +45,7 @@ def main():
                     login_button = st.button('Login')
                     if login_button:
                         state.user = False
-        
-    
-        
+   
     
     # Mandatory to avoid rollbacks with widgets, must be called at the end of your app
     state.sync()
@@ -57,8 +53,6 @@ def main():
 
 
 def loginSignup(state):
-    #initialise user login/sign up
-    # st.write('login page')
 
     ca = certifi.where()
     client2 = MongoClient("mongodb+srv://tanchingfhen:978775!Mj@dataproducts.hcjk1ct.mongodb.net/?retryWrites=true&w=majority", tlsCAFile=ca)
@@ -67,7 +61,6 @@ def loginSignup(state):
     usernames = user_collection.distinct('User-ID')
     passwords = user_collection.distinct('password')
     
-    #st.empty() are placeholders for streamlit widgets (we use that to make things 'disappear'/replace)
     forgot_text = st.empty()
     title = st.empty()
     email = st.empty()
@@ -109,8 +102,6 @@ def loginSignup(state):
         while not state.user:
             if (text_email not in usernames):
                 user_collection.insert_one({"User-ID": text_email, "password": text_password,'interactions':[]})
-                # user_email = text_email
-                # user_password = text_password
                 state.user = text_email
             
             else: #if password/email exists
@@ -151,13 +142,6 @@ def loginSignup(state):
     if active_tab == "Login":
         if placeholder.button("Login", key="loginbtn"):
             login() #calling the function
-        # if forgotpass.checkbox("Forgot password?"):
-        #     password.empty()
-        #     title.empty()
-        #     forgot_text.info("Enter email to reset password")
-        #     if placeholder.button("Submit"):
-        #         auth.send_password_reset_email(text_email)
-        #         forgot_text.success("Sent email to reset password!")
             
     elif active_tab == "Signup":
         if placeholder.button("Sign up", key="signupbutton"):
